@@ -96,7 +96,7 @@ Flight::route('POST /users', function(){
         "status"=>"error"
     ];
 
-    if($query->execute()===true){
+    if($query->execute()){
         $array = [
             $data = [
                 "id"=>$db->lastInsertId(),
@@ -114,6 +114,55 @@ Flight::route('POST /users', function(){
     Flight :: json($array);
 });
 
+Flight::route('PUT /users', function(){
 
+    $db = Flight::db();
+
+    $id = Flight::request()->data->id;
+    $name = Flight::request()->data->name;
+    $phone = Flight::request()->data->phone;
+    $password = Flight::request()->data->password;
+    $email = Flight::request()->data->email;
+
+    $sql = "update usuarios set 
+    correo=:email,
+    password=:password,
+    telefono=:phone,
+    nombre=:name 
+    where id=:id";
+     
+
+    $query = $db->prepare($sql);
+
+    $query->bindValue(":id",$id,PDO::PARAM_INT);
+    $query->bindValue(":name",$name,PDO::PARAM_STR);
+    $query->bindValue(":phone",$phone,PDO::PARAM_INT);
+    $query->bindValue(":password",$password,PDO::PARAM_STR);
+    $query->bindValue(":email",$email,PDO::PARAM_STR);
+
+    
+
+    $array = [
+        "error"=>"error al actualizr",
+        "status"=>"error"
+    ];
+
+    if($query->execute()){
+        $array = [
+            "data" => [
+                "id"=>$id,
+                "name"=>$name,
+                "phone"=>$phone,
+                "password"=>$password,
+                "email"=>$email,
+            ],
+
+            "status"=>"success"
+       
+        ];
+    }
+    
+    Flight :: json($array);
+});
 
 Flight::start();
