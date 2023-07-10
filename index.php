@@ -1,5 +1,8 @@
 <?php
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers:  Content-Type, X-Auth-Token, Authorization, Origin');
+header('Access-Control-Allow-Methods: *');
 
 require 'vendor/autoload.php';
 
@@ -114,6 +117,8 @@ Flight::route('POST /users', function(){
     Flight :: json($array);
 });
 
+
+
 Flight::route('PUT /users', function(){
 
     $db = Flight::db();
@@ -164,5 +169,46 @@ Flight::route('PUT /users', function(){
     
     Flight :: json($array);
 });
+
+
+
+Flight::route('DELETE /users', function(){
+
+    $db = Flight::db();
+
+    $id = Flight::request()->data->id;
+   
+
+    $sql = "delete from usuarios where id=:id";
+     
+
+    $query = $db->prepare($sql);
+
+    $query->bindValue(":id",$id,PDO::PARAM_INT);
+    
+
+    
+
+    $array = [
+        "error"=>"error al borrar",
+        "status"=>"error"
+    ];
+
+    if($query->execute()){
+        $array = [
+            "data" => [
+                "id"=>$id,
+               
+            ],
+
+            "status"=>"success"
+       
+        ];
+    }
+    
+    Flight :: json($array);
+});
+
+
 
 Flight::start();
