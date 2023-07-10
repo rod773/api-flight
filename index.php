@@ -9,22 +9,7 @@ header('Access-Control-Allow-Methods: *');
 require 'vendor/autoload.php';
 
 
-
-
 $users = new Users();
-
-
-
-
-
-
-
-
-
-Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=spending_tracker', 'root', ''), function ($db) {
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-});
-
 
 
 Flight::route('GET /users', [$users, 'selectAll']);
