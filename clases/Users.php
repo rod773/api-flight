@@ -16,6 +16,8 @@ class Users
         $this->db = Flight::db();
     }
 
+    //************************************************* */
+
     public function selectAll()
     {
 
@@ -26,11 +28,11 @@ class Users
             ]));
         }
 
-        $db = Flight::db();
+
 
         $sql = "select * from usuarios";
 
-        $query = $db->prepare($sql);
+        $query = $this->db->prepare($sql);
 
         $query->execute();
 
@@ -57,7 +59,7 @@ class Users
         ]);
     }
 
-
+    //***************************************************** */
 
     public function selectOne($id)
     {
@@ -94,6 +96,173 @@ class Users
 
 
 
+
+        Flight::json($array);
+    }
+
+    //*************************************** */
+    public function insert()
+    {
+
+        if (!validateToken()) {
+            Flight::halt(403, json_encode([
+                "error" => 'Unauthorized',
+                "status" => "error"
+            ]));
+        }
+
+
+
+        $request_data = json_decode(file_get_contents("php://input"), true);
+
+        $name = $request_data['name'];
+        $phone = $request_data['phone'];
+        $password = $request_data['password'];
+        $email = $request_data['email'];
+
+
+
+        $sql = "insert into spending_tracker.usuarios (correo,password,telefono,nombre) values (:email,:password,:phone,:name)";
+
+        $query = $this->db->prepare($sql);
+
+        $query->bindValue(":name", $name, PDO::PARAM_STR);
+        $query->bindValue(":phone", $phone, PDO::PARAM_INT);
+        $query->bindValue(":password", $password, PDO::PARAM_STR);
+        $query->bindValue(":email", $email, PDO::PARAM_STR);
+
+
+
+        $array = [
+            "error" => "error al insertar",
+            "status" => "error"
+        ];
+
+        if ($query->execute()) {
+            $array = [
+                $data = [
+                    "id" => $this->db->lastInsertId(),
+                    "name" => $name,
+                    "phone" => $phone,
+                    "password" => $password,
+                    "email" => $email,
+                ],
+
+                "status" => "success"
+
+            ];
+        }
+
+        Flight::json($array);
+    }
+
+
+    //*********************************************** */
+
+    public function update()
+    {
+
+        if (!validateToken()) {
+            Flight::halt(403, json_encode([
+                "error" => 'Unauthorized',
+                "status" => "error"
+            ]));
+        }
+
+
+
+        $request_data = json_decode(file_get_contents("php://input"), true);
+
+        $id = $request_data['id'];
+        $name = $request_data['name'];
+        $phone = $request_data['phone'];
+        $password = $request_data['password'];
+        $email = $request_data['email'];
+
+        $sql = "update usuarios set 
+                correo=:email,
+                password=:password,
+                telefono=:phone,
+                nombre=:name 
+                where id=:id";
+
+
+        $query = $this->db->prepare($sql);
+
+        $query->bindValue(":id", $id, PDO::PARAM_INT);
+        $query->bindValue(":name", $name, PDO::PARAM_STR);
+        $query->bindValue(":phone", $phone, PDO::PARAM_INT);
+        $query->bindValue(":password", $password, PDO::PARAM_STR);
+        $query->bindValue(":email", $email, PDO::PARAM_STR);
+
+
+
+        $array = [
+            "error" => "error al actualizr",
+            "status" => "error"
+        ];
+
+        if ($query->execute()) {
+            $array = [
+                "data" => [
+                    "id" => $id,
+                    "name" => $name,
+                    "phone" => $phone,
+                    "password" => $password,
+                    "email" => $email,
+                ],
+
+                "status" => "success"
+
+            ];
+        }
+
+        Flight::json($array);
+    }
+
+
+    //**********************************************
+    public function delete()
+    {
+
+        if (!validateToken()) {
+            Flight::halt(403, json_encode([
+                "error" => 'Unauthorized',
+                "status" => "error"
+            ]));
+        }
+
+
+
+        $id = Flight::request()->data->id;
+
+
+        $sql = "delete from usuarios where id=:id";
+
+
+        $query = $this->db->prepare($sql);
+
+        $query->bindValue(":id", $id, PDO::PARAM_INT);
+
+
+
+
+        $array = [
+            "error" => "error al borrar",
+            "status" => "error"
+        ];
+
+        if ($query->execute()) {
+            $array = [
+                "data" => [
+                    "id" => $id,
+
+                ],
+
+                "status" => "success"
+
+            ];
+        }
 
         Flight::json($array);
     }
