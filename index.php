@@ -55,11 +55,11 @@ Flight::route('GET /users', function(){
     }
 
 
-    $headers = getToken();
+  
     Flight :: json([
         "total rows"=>$query->rowCount(),
         "rows"=>$array,
-        "headers"=>$headers
+       
     ]);
 });
 
@@ -99,13 +99,16 @@ Flight::route('POST /users', function(){
 
     $db = Flight::db();
 
-    $name = Flight::request()->data->name;
-    $phone = Flight::request()->data->phone;
-    $password = Flight::request()->data->password;
-    $email = Flight::request()->data->email;
+    $request_data = json_decode(file_get_contents("php://input"),true);
+    
+    $name = $request_data['name'];
+    $phone = $request_data['phone'];
+    $password = $request_data['password'];
+    $email = $request_data['email'];
 
-    $sql = "insert into usuarios (correo,password,telefono,nombre)
-      values (:email,:password,:phone,:name)";
+    
+
+    $sql = "insert into spending_tracker.usuarios (correo,password,telefono,nombre) values (:email,:password,:phone,:name)";
 
     $query = $db->prepare($sql);
 
@@ -145,11 +148,13 @@ Flight::route('PUT /users', function(){
 
     $db = Flight::db();
 
-    $id = Flight::request()->data->id;
-    $name = Flight::request()->data->name;
-    $phone = Flight::request()->data->phone;
-    $password = Flight::request()->data->password;
-    $email = Flight::request()->data->email;
+    $request_data = json_decode(file_get_contents("php://input"),true);
+    
+    $id = $request_data['id'];
+    $name = $request_data['name'];
+    $phone = $request_data['phone'];
+    $password = $request_data['password'];
+    $email = $request_data['email'];
 
     $sql = "update usuarios set 
     correo=:email,
@@ -233,21 +238,24 @@ Flight::route('DELETE /users', function(){
 
 
 
-Flight::route('POST /auth', function(){
+Flight::route('GET /auth', function(){
 
     $db = Flight::db();
 
-    $password = Flight::request()->data->password;
-    $email = Flight::request()->data->email;
+    $request_data = json_decode(file_get_contents("php://input"),true);
+    
+    
+    $password = $request_data['password'];
+    $email = $request_data['email'];
+    
 
-    $sql = "select * from usuarios 
-     where  correo=:email and password=:password";
+    $sql = "select * from spending_tracker.usuarios where  correo = :email and password = :password";
 
     $query = $db->prepare($sql);
 
     $query->bindValue(":password",$password,PDO::PARAM_STR);
     $query->bindValue(":email",$email,PDO::PARAM_STR);
-
+ 
     
     $array = [
         "error"=>"no se pudo validad identidad",
