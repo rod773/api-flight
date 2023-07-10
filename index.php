@@ -12,7 +12,12 @@ require 'vendor/autoload.php';
 
 function getToken(){
     $headers = apache_request_headers();
-
+    if(!isset($headers['Authorization'])){
+         Flight::halt(403,json_encode([
+            "error"=>"Unauthenticated request",
+            "status"=>"error"
+        ]));
+    }
     $authorization = $headers["Authorization"];
     $authorizationArray = explode(" ",$authorization);
     $token = $authorizationArray[1];
@@ -94,6 +99,14 @@ Flight::route('GET /users', function(){
 
 Flight::route('GET /users/@id', function($id){
 
+
+    if(!validateToken()){
+        Flight::halt(403,json_encode([
+            "error"=>'Unauthorized',
+            "status"=>"error"
+        ]));
+    }
+
     $db = Flight::db();
 
     $sql = "select * from usuarios where id = :id";
@@ -124,6 +137,13 @@ Flight::route('GET /users/@id', function($id){
 
 
 Flight::route('POST /users', function(){
+
+    if(!validateToken()){
+        Flight::halt(403,json_encode([
+            "error"=>'Unauthorized',
+            "status"=>"error"
+        ]));
+    }
 
     $db = Flight::db();
 
@@ -173,6 +193,13 @@ Flight::route('POST /users', function(){
 
 
 Flight::route('PUT /users', function(){
+
+    if(!validateToken()){
+        Flight::halt(403,json_encode([
+            "error"=>'Unauthorized',
+            "status"=>"error"
+        ]));
+    }
 
     $db = Flight::db();
 
@@ -228,6 +255,13 @@ Flight::route('PUT /users', function(){
 
 
 Flight::route('DELETE /users', function(){
+
+    if(!validateToken()){
+        Flight::halt(403,json_encode([
+            "error"=>'Unauthorized',
+            "status"=>"error"
+        ]));
+    }
 
     $db = Flight::db();
 
