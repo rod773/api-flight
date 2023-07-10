@@ -4,10 +4,28 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers:  Content-Type, X-Auth-Token, Authorization, Origin');
 header('Access-Control-Allow-Methods: *');
 
-require 'vendor/autoload.php';
-
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+
+require 'vendor/autoload.php';
+
+
+function getToken(){
+    $headers = apache_request_headers();
+    $authorization = $headers["Authorization"];
+    $authorizationArray = explode(" ",$authorization);
+    $token = $authorizationArray[1];
+    $key='example_key';
+    $decodedToken = JWT::decode($token, new Key($key, 'HS256'));
+    return $decodedToken;
+}
+
+
+function ValidateToken(){
+    $info = getToken();
+}
+
+
 
 Flight::register('db','PDO',array('mysql:host=localhost;dbname=spending_tracker','root',''));
 
@@ -37,10 +55,11 @@ Flight::route('GET /users', function(){
     }
 
 
-
+    $headers = getToken();
     Flight :: json([
         "total rows"=>$query->rowCount(),
-        "rows"=>$array
+        "rows"=>$array,
+        "headers"=>$headers
     ]);
 });
 
