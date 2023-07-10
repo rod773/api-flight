@@ -17,8 +17,18 @@ function getToken(){
     $authorizationArray = explode(" ",$authorization);
     $token = $authorizationArray[1];
     $key='example_key';
-    $decodedToken = JWT::decode($token, new Key($key, 'HS256'));
-    return $decodedToken;
+
+    try{
+        return JWT::decode($token, new Key($key, 'HS256'));
+    }
+    catch (Throwable $th){ 
+         Flight::halt(403,json_encode([
+            "error"=>$th->getMessage(),
+            "status"=>"error"
+        ]));
+    }
+    
+   
 }
 
 
@@ -35,9 +45,20 @@ function validateToken(){
 
 
 
-Flight::register('db','PDO',array('mysql:host=localhost;dbname=spending_tracker','root',''));
+Flight::register('db','PDO',array('mysql:host=localhost;dbname=spending_tracker','root',''),function($db){
+    $db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+});
+
+
 
 Flight::route('GET /users', function(){
+
+    if(!validateToken()){
+        Flight::halt(403,json_encode([
+            "error"=>'Unauthorized',
+            "status"=>"error"
+        ]));
+    }
 
     $db = Flight::db();
 
@@ -62,15 +83,12 @@ Flight::route('GET /users', function(){
         ];
     }
 
-    $validate =validateToken();
+ 
   
     Flight :: json([
         "total rows"=>$query->rowCount(),
         "rows"=>$array,
-        "headers"=>[
-            $validate
-        ]
-    ]);
+       ]);
 });
 
 
