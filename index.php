@@ -12,6 +12,7 @@ require 'vendor/autoload.php';
 
 function getToken(){
     $headers = apache_request_headers();
+
     $authorization = $headers["Authorization"];
     $authorizationArray = explode(" ",$authorization);
     $token = $authorizationArray[1];
@@ -21,8 +22,15 @@ function getToken(){
 }
 
 
-function ValidateToken(){
+function validateToken(){
     $info = getToken();
+    $db=Flight::db();
+    $sql = "select * from usuarios where id = :id";
+    $query= $db->prepare($sql);
+    $query->bindValue(":id",$info->data,PDO::PARAM_INT);
+    $query->execute();
+    $rows=$query->fetchColumn();
+    return $rows; 
 }
 
 
@@ -54,12 +62,14 @@ Flight::route('GET /users', function(){
         ];
     }
 
-
+    $validate =validateToken();
   
     Flight :: json([
         "total rows"=>$query->rowCount(),
         "rows"=>$array,
-       
+        "headers"=>[
+            $validate
+        ]
     ]);
 });
 
