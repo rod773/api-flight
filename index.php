@@ -6,6 +6,9 @@ header('Access-Control-Allow-Methods: *');
 
 require 'vendor/autoload.php';
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 Flight::register('db','PDO',array('mysql:host=localhost;dbname=spending_tracker','root',''));
 
 Flight::route('GET /users', function(){
@@ -204,6 +207,54 @@ Flight::route('DELETE /users', function(){
             "status"=>"success"
        
         ];
+    }
+    
+    Flight :: json($array);
+});
+
+
+
+Flight::route('POST /auth', function(){
+
+    $db = Flight::db();
+
+    $password = Flight::request()->data->password;
+    $email = Flight::request()->data->email;
+
+    $sql = "select * from usuarios 
+     where  correo=:email and password=:password";
+
+    $query = $db->prepare($sql);
+
+    $query->bindValue(":password",$password,PDO::PARAM_STR);
+    $query->bindValue(":email",$email,PDO::PARAM_STR);
+
+    
+    $array = [
+        "error"=>"no se pudo validad identidad",
+        "status"=>"error"
+    ];
+
+    if($query->execute()){
+
+        $user = $query->fetch();
+
+        $now = strtotime('now');
+
+        $key = 'example_key';
+    
+        $payload = [
+            'exp' => $now + 3600,
+            'data' => $user['id'],
+            
+        ];
+
+
+        $jwt = JWT::encode($payload, $key, 'HS256');
+
+        $array =[
+            "token"=>$jwt
+        ] ;
     }
     
     Flight :: json($array);
