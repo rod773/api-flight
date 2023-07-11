@@ -8,12 +8,24 @@ class Users
     private $db;
 
 
+
     public function __construct()
     {
-        Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=spending_tracker', 'root', ''), function ($db) {
-            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        });
+
+        Flight::register(
+            'db',
+            'PDO',
+            array(
+                'mysql:host=' . $_ENV['HOST'] .
+                    ';dbname=' . $_ENV['DB_NAME'],
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS']
+            ),
+            function ($db) {
+                $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            }
+        );
 
         $this->db = Flight::db();
     }
