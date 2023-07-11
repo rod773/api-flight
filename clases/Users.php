@@ -307,7 +307,7 @@ class Users
 
             $now = strtotime('now');
 
-            $key = 'example_key';
+            $key = $_ENV['JWT_SECRET_KEY'];
 
             $payload = [
                 'exp' => $now + 3600,
@@ -340,7 +340,7 @@ class Users
         $authorization = $headers["Authorization"];
         $authorizationArray = explode(" ", $authorization);
         $token = $authorizationArray[1];
-        $key = 'example_key';
+        $key = $_ENV['JWT_SECRET_KEY'];
 
         try {
             return JWT::decode($token, new Key($key, 'HS256'));

@@ -8,6 +8,9 @@ header('Access-Control-Allow-Methods: *');
 
 require 'vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 
 $users = new Users();
 
